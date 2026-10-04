@@ -7,6 +7,11 @@ import { saveBill, getBills, updateBill, softDeleteBill, restoreBill, permanentl
 document.addEventListener('DOMContentLoaded', () => {
     // Set user info
     const user = getCurrentUser();
+    if (!user) {
+        window.location.href = 'index.html';
+        return;
+    }
+    
     if (user) {
         const userNameDisplay = document.getElementById('userNameDisplay');
         const userAvatar = document.getElementById('userAvatar');

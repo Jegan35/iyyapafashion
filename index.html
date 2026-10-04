@@ -107,10 +107,15 @@
                 errorMessage.textContent = result.message;
                 errorMessage.classList.remove('hidden');
                 loginBtn.disabled = false;
-                loginBtn.innerHTML = '<span>Sign In</span><i class="fa-solid fa-arrow-right ml-1"></i>';
+                loginBtn.innerHTML = '<span>LOGIN</span><i class="fa-solid fa-arrow-right ml-1"></i>';
+            } else {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>LOGIN</span><i class="fa-solid fa-arrow-right ml-1"></i>';
             }
-            // If successful, auth state listener in auth.js will redirect
         });
+
+        // Clear local storage if they somehow get here with it
+        localStorage.removeItem('currentUserDisplay');
     </script>
 </body>
 </html>
