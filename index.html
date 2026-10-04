@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Professional Billing Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        'primary-hover': '#4338CA',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="flex items-center justify-center h-screen w-screen overflow-hidden relative bg-black">
+
+    <!-- Full Width Symmetric Devotional Background -->
+    <img src="iyyappan_bg_wide.jpg" class="absolute inset-0 w-full h-full object-cover opacity-95" alt="Lord Ayyappan Background">
+    
+    <!-- Subtle Overlay for contrast -->
+    <div class="absolute inset-0 bg-black/20"></div>
+
+    <!-- Header Text positioned at top center (optional, to use the empty top space) -->
+    <div class="absolute top-12 left-0 right-0 text-center z-10">
+        <h1 class="text-4xl md:text-5xl font-bold font-serif text-yellow-400 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] tracking-wider">Swamiye Saranam Ayyappa</h1>
+    </div>
+
+    <!-- Center Login Portal -->
+    <div class="glass-card w-full max-w-md p-8 sm:p-10 rounded-3xl relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/40 bg-white/85 backdrop-blur-xl mt-12">
+        <div class="text-center mb-8">
+            <img src="logo.jpg" alt="Logo" class="w-24 h-24 rounded-full object-cover mx-auto mb-4 shadow-[0_10px_20px_rgba(0,0,0,0.3)] border-2 border-white/50">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">IYYAPPA FASHION</h2>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label for="username" class="block text-sm font-bold text-gray-800 mb-1">Username</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-user text-gray-500"></i>
+                    </div>
+                    <input type="text" id="username" required class="form-input pl-10 w-full rounded-xl border-gray-300 focus:border-primary focus:ring-primary shadow-sm bg-white/90" placeholder="Enter username">
+                </div>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-bold text-gray-800 mb-1">Password</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-lock text-gray-500"></i>
+                    </div>
+                    <input type="password" id="password" required class="form-input pl-10 w-full rounded-xl border-gray-300 focus:border-primary focus:ring-primary shadow-sm bg-white/90" placeholder="••••••••">
+                </div>
+            </div>
+
+            <div id="errorMessage" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3 font-bold text-center shadow-sm">
+                <!-- Error message will be injected here -->
+            </div>
+
+            <button type="submit" id="loginBtn" class="w-full btn bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 transition-all shadow-lg font-bold text-base flex items-center justify-center gap-2">
+                <span>LOGIN</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+        
+        <div class="mt-8 text-center text-xs text-gray-500 font-bold tracking-wide uppercase">
+            <p>IYYAPPA FASHION</p>
+        </div>
+    </div>
+
+    <!-- Auth Logic -->
+    <script type="module" src="auth.js?v=2"></script>
+    <script type="module">
+        import { loginUser } from './auth.js?v=2';
+        
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('errorMessage');
+        const loginBtn = document.getElementById('loginBtn');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Reset state
+            errorMessage.classList.add('hidden');
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            const result = await loginUser(username, password);
+            
+            if (!result.success) {
+                errorMessage.textContent = result.message;
+                errorMessage.classList.remove('hidden');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>Sign In</span><i class="fa-solid fa-arrow-right ml-1"></i>';
+            }
+            // If successful, auth state listener in auth.js will redirect
+        });
+    </script>
+</body>
+</html>

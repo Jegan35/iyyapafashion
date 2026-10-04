@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Professional Billing</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        'primary-hover': '#4338CA',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="layout-wrapper">
+        <!-- Sidebar (Hidden on Print) -->
+        <aside class="sidebar no-print text-white flex flex-col z-20">
+            <div class="p-6 border-b border-gray-800 flex items-center gap-3">
+                <img src="logo.jpg" alt="Logo" class="w-10 h-10 rounded-full object-cover">
+                <span class="text-xl font-bold tracking-wider">SEN<span class="text-indigo-400">THIL</span></span>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto py-4">
+                <ul class="space-y-2 px-4">
+                    <li>
+                        <a href="#" data-view="dashboard" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-800 text-white transition-colors">
+                            <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-view="new-bill" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
+                            <i class="fa-solid fa-file-invoice w-5"></i> New Bill
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-view="history" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
+                            <i class="fa-solid fa-clock-rotate-left w-5"></i> Bills History
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-view="companies" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
+                            <i class="fa-solid fa-building w-5"></i> Companies
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="mt-8 px-4">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">System</div>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="#" data-view="trash" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
+                                <i class="fa-solid fa-trash-can w-5"></i> Trash
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-gray-800">
+
+                <button id="logoutBtn" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-red-600 hover:text-white rounded-lg transition-colors text-sm text-gray-400">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-1 bg-gray-50" id="mainContentArea">
+            
+            <!-- ========================================== -->
+            <!-- DASHBOARD VIEW                             -->
+            <!-- ========================================== -->
+            <section id="dashboard" class="view-section active no-print">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                    <div class="flex flex-col">
+                        <h1 class="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
+                        <span id="dashboardCurrentDate" class="text-sm text-gray-500 font-medium mt-1"></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div id="customDateFilter" class="hidden items-center gap-2">
+                            <input type="date" id="dashStartDate" onchange="initDashboard()" class="border border-gray-200 text-gray-700 px-3 py-1.5 rounded-lg shadow-sm text-sm outline-none focus:border-indigo-500">
+                            <span class="text-gray-500 text-sm">to</span>
+                            <input type="date" id="dashEndDate" onchange="initDashboard()" class="border border-gray-200 text-gray-700 px-3 py-1.5 rounded-lg shadow-sm text-sm outline-none focus:border-indigo-500">
+                        </div>
+                        <select id="dashboardDateFilter" onchange="toggleCustomDateDash(); initDashboard()" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none cursor-pointer">
+                            <option value="today" selected>Today</option>
+                            <option value="this_week">Past 7 Days</option>
+                            <option value="this_month">This Month</option>
+                            <option value="this_year">This Year</option>
+                            <option value="overall">Overall</option>
+                            <option value="custom">Custom Date</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Stats Widgets -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between border-l-4 border-l-indigo-500">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium mb-1">Total Revenue</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="widgetRevenue">₹0.00</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500">
+                            <i class="fa-solid fa-indian-rupee-sign text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between border-l-4 border-l-red-500">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium mb-1">Pending Amount</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="widgetPending">₹0.00</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500">
+                            <i class="fa-solid fa-money-bill-wave text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between border-l-4 border-l-green-500">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium mb-1">Received Amount</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="widgetReceived">₹0.00</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500">
+                            <i class="fa-solid fa-wallet text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between border-l-4 border-l-blue-500">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium mb-1">Total Bills</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="widgetBillsCount">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500">
+                            <i class="fa-solid fa-file-invoice text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Breakdown -->
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Company Overview</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="dashboardCompanyGrid">
+                        <!-- Company cards will be injected here via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- NEW BILL VIEW (Printable Area)             -->
+            <!-- ========================================== -->
+            <section id="new-bill" class="view-section">
+                <!-- Toggle With/Without GST -->
+                <div class="flex justify-center mb-6 no-print space-x-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200 w-max mx-auto">
+                    <label class="cursor-pointer flex items-center space-x-2">
+                        <input type="radio" name="billTypeToggle" value="with_gst" checked class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                        <span class="font-bold text-gray-800">With GST</span>
+                    </label>
+                    <label class="cursor-pointer flex items-center space-x-2">
+                        <input type="radio" name="billTypeToggle" value="without_gst" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                        <span class="font-bold text-gray-800">Without GST</span>
+                    </label>
+                </div>
+                
+                <div id="withoutGstPlaceholder" class="hidden text-center py-20 bg-white rounded-xl shadow-sm border border-gray-200">
+                    <i class="fa-solid fa-file-invoice text-4xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl text-gray-500 font-bold">Without GST Format</h2>
+                    <p class="text-gray-400 mt-2">This format will be added later as requested.</p>
+                </div>
+
+                <div id="withGstContainer">
+                    <div class="no-print mb-4 flex justify-between items-center max-w-4xl mx-auto">
+                        <button id="selectClientBtn" class="btn bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-200 shadow-sm font-semibold">
+                            <i class="fa-solid fa-users mr-2"></i> Select Existing Client
+                        </button>
+                        <select id="billingEntity" class="form-input bg-white shadow-sm border-gray-300 rounded-lg max-w-xs font-semibold">
+                            <option value="NAINIKA FASHION">NAINIKA FASHION</option>
+                            <option value="IYYAPPA FASHION">IYYAPPA FASHION</option>
+                            <option value="SRI MURUGAN TEX">SRI MURUGAN TEX</option>
+                        </select>
+                    </div>
+
+                    <!-- Print area boundary -->
+                    <div id="print-area" class="bg-white w-full max-w-4xl mx-auto p-8 text-black print:p-0 print:m-0 print:w-full font-sans shadow-lg mb-8">
+                        
+                        <div class="border-2 border-black text-xs print:border-black flex flex-col print-wrapper" style="font-family: Arial, sans-serif; height: 265mm;">
+                            
+                            <!-- Top Row: GSTIN and INVOICE -->
+                            <div class="flex justify-between items-center px-2 py-1">
+                                <div class="font-bold flex items-center">
+                                    <span>GSTIN</span>
+                                    <input type="text" id="storeGst" value="33BKHPB0870K1ZD" class="border-none p-0 outline-none w-48 font-bold ml-1 bg-transparent text-xs">
+                                </div>
+                                <div class="font-bold text-lg tracking-wider">INVOICE</div>
+                            </div>
+                            
+                            <!-- Company Header -->
+                            <div class="text-center pb-2 px-4">
+                                <h1 id="printBillingEntity" class="text-3xl font-bold mb-1" style="font-family: 'Times New Roman', serif;" contenteditable="true">NAINIKA FASHION</h1>
+                                <p class="text-[10px] uppercase" contenteditable="true">48\1 KAMATCHI AMMAN KOVIL STREET, KUMARANANTHAPURAM, P.N ROAD,</p>
+                                <p class="text-[10px] uppercase" contenteditable="true">TIRUPUR-641602 MOBILE-9688704766</p>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="border-t border-black"></div>
+
+                            <!-- Invoice Details 2 Columns -->
+                            <div class="flex">
+                                <!-- Left Col -->
+                                <div class="w-1/2 border-r border-black p-1 flex flex-col justify-between">
+                                    <div class="mb-2" contenteditable="true">Tax is Payable on Reversw: Yes / No</div>
+                                    <div class="flex mb-2 items-center">
+                                        <span class="w-24" contenteditable="true">INVOICE NO</span>
+                                        <input type="text" id="invoiceNo" value="8" class="border-none p-0 outline-none flex-1 bg-transparent text-xs">
+                                    </div>
+                                    <div class="flex mb-1 items-center">
+                                        <span class="w-24" contenteditable="true">INVOICE Date</span>
+                                        <input type="text" id="invoiceDate" value="14.09.2026" class="border-none p-0 outline-none flex-1 bg-transparent text-xs">
+                                    </div>
+                                </div>
+                                <!-- Right Col -->
+                                <div class="w-1/2 p-1 flex flex-col justify-between">
+                                    <div class="flex mb-2">
+                                        <span class="w-32" contenteditable="true">Transportation Mode</span>
+                                        <input type="text" id="transportMode" class="border-none p-0 outline-none flex-1 bg-transparent text-xs">
+                                    </div>
+                                    <div class="flex mb-2">
+                                        <span class="w-32" contenteditable="true">Date & Time of Supply</span>
+                                        <input type="text" id="supplyDateTime" class="border-none p-0 outline-none flex-1 bg-transparent text-xs">
+                                    </div>
+                                    <div class="flex mb-1">
+                                        <span class="w-32" contenteditable="true">Place of Supply</span>
+                                        <input type="text" id="placeOfSupply" class="border-none p-0 outline-none flex-1 bg-transparent text-xs">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="border-t border-black"></div>
+                            <div class="p-1 font-bold" contenteditable="true">Details of Receiver Billed to</div>
+                            <div class="border-t border-black"></div>
+
+                            <!-- Receiver Details 2 Columns -->
+                            <div class="flex">
+                                <!-- Left (Billed To) -->
+                                <div class="w-1/2 border-r border-black p-1">
+                                    <table class="w-full text-xs">
+                                        <tr><td class="w-16 py-0.5">Name</td><td><input type="text" id="clientName" value="AMIT KAUSHIK" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs font-semibold"></td></tr>
+                                        <tr><td class="align-top py-0.5">Address</td><td><textarea id="clientAddress" class="border-none p-0 outline-none w-full uppercase resize-none h-8 bg-transparent text-xs">MADANAPALLI</textarea></td></tr>
+                                        <tr><td class="py-0.5">CELL</td><td><input type="text" id="clientMobile" value="8527684085" class="border-none p-0 outline-none w-full bg-transparent text-xs" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"></td></tr>
+                                        <tr><td class="py-0.5">STATE</td><td><input type="text" id="clientState" value="BREZZA" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs"></td></tr>
+                                        <tr><td class="py-0.5">state code</td><td><input type="text" id="clientStateCode" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs"></td></tr>
+                                        <tr><td class="py-0.5">GSTIN No</td><td><input type="text" id="clientGST" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs" maxlength="15" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)"></td></tr>
+                                    </table>
+                                </div>
+                                <!-- Right (Shipped To) -->
+                                <div class="w-1/2 p-1">
+                                    <table class="w-full text-xs">
+                                        <tr><td class="w-16 py-0.5">Name</td><td><input type="text" id="shipName" value="AMIT KAUSHIK" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs font-semibold"></td></tr>
+                                        <tr><td class="align-top py-0.5">Address</td><td><textarea id="shipAddress" class="border-none p-0 outline-none w-full uppercase resize-none h-8 bg-transparent text-xs">MADANAPALLI</textarea></td></tr>
+                                        <tr><td class="py-0.5">CELL</td><td><input type="text" id="shipMobile" value="8527684085" class="border-none p-0 outline-none w-full bg-transparent text-xs" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"></td></tr>
+                                        <tr><td class="py-0.5">STATE</td><td><input type="text" id="shipState" value="BREZZA" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs"></td></tr>
+                                        <tr><td class="py-0.5">state code</td><td><input type="text" id="shipStateCode" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs"></td></tr>
+                                        <tr><td class="py-0.5">GSTIN No</td><td><input type="text" id="shipGST" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs" maxlength="15" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)"></td></tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Items Table -->
+                            <div class="border-t border-black flex flex-col relative flex-1" style="min-height: 250px;">
+                                <!-- Absolute Vertical Column Lines for Background -->
+                                <div class="absolute top-0 bottom-0 left-8 border-r border-black pointer-events-none z-0"></div>
+                                <div class="absolute top-0 bottom-0 left-24 border-r border-black pointer-events-none z-0"></div>
+                                <div class="absolute top-0 bottom-0 right-28 border-l border-black pointer-events-none z-0"></div>
+                                <div class="absolute top-0 bottom-0 right-44 border-l border-black pointer-events-none z-0"></div>
+                                <div class="absolute top-0 bottom-0 right-60 border-l border-black pointer-events-none z-0"></div>
+                                <div class="absolute top-0 bottom-0 right-[17.5rem] border-l border-black pointer-events-none z-0"></div>
+
+                                <!-- Table Header -->
+                                <div class="flex border-b border-black font-bold text-center relative z-10">
+                                    <div class="w-8 border-r border-black p-1 flex items-center justify-center" contenteditable="true">S.No</div>
+                                    <div class="w-16 border-r border-black p-1 flex items-center justify-center" contenteditable="true">HSN Code</div>
+                                    <div class="flex-1 border-r border-black p-1 flex items-center justify-center"></div>
+                                    <div class="w-10 border-r border-black p-1 flex items-center justify-center" contenteditable="true">HSN</div>
+                                    <div class="w-16 border-r border-black p-1 leading-tight flex items-center justify-center flex-col"><span contenteditable="true">Quantity</span><span class="font-normal text-[10px]" contenteditable="true">Doz / Pcs</span></div>
+                                    <div class="w-16 border-r border-black p-1 flex items-center justify-center" contenteditable="true">Rate</div>
+                                    <div class="w-28 p-1 leading-tight flex flex-col justify-center">
+                                        <div class="border-b border-black -mx-1 -mt-1 pt-1 pb-1" contenteditable="true">Amount</div>
+                                        <div class="flex justify-between px-2 pt-1 font-normal text-[10px]"><span contenteditable="true">Rs.</span><span contenteditable="true">Ps.</span></div>
+                                    </div>
+                                </div>
+                                <!-- Table Body -->
+                                <div id="itemsContainer" class="flex-1 flex flex-col relative z-10">
+                                    <div class="flex item-row">
+                                        <div class="w-8 text-center pt-2 item-sno">1</div>
+                                        <div class="w-16 text-center pt-2"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs" value=""></div>
+                                        <div class="flex-1 text-center pt-2"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs uppercase" placeholder="ITEM"></div>
+                                        <div class="w-10 text-center pt-2"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs" value=""></div>
+                                        <div class="w-16 text-center pt-2"><input type="number" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs item-qty" value="0"></div>
+                                        <div class="w-16 text-center pt-2"><input type="number" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs item-rate" value="0.00"></div>
+                                        <div class="w-28 text-center pt-2"><input type="number" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs item-amount" value="0.00"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bottom section -->
+                            <div class="border-t border-black flex flex-col">
+                                <!-- Top Row: Terms & Tax Summary -->
+                                <div class="flex flex-1">
+                                    <!-- Left Side (Terms) -->
+                                    <div class="flex-1 border-r border-black flex flex-col">
+                                        <div class="flex border-b border-black">
+                                            <div class="w-48 p-1" contenteditable="true">No of Bundles / Packaged</div>
+                                            <div class="flex-1 font-bold p-1 border-l border-black"><input type="text" class="w-16 border-none p-0 outline-none bg-transparent text-xs font-bold" value="2"></div>
+                                        </div>
+                                        
+                                        <div class="flex border-b border-black">
+                                            <div class="w-48 p-1 font-bold" contenteditable="true">Electronic Ref No.</div>
+                                            <div class="flex-1 p-1 border-l border-black"><input type="text" class="w-full border-none p-0 outline-none bg-transparent text-xs"></div>
+                                        </div>
+                                        
+                                        <div class="p-1 text-[10px] leading-tight flex-1" contenteditable="true">
+                                            <div class="font-bold mb-1">Terms and Conditions</div>
+                                            <div>1. goods once sold cannot be taken back</div>
+                                            <div>2.Seller is not responsible for any loss or damage of goods transit</div>
+                                            <div>3.Buyer Undertake to submit prescript st</div>
+                                            <div class="ml-2 mt-1">Jurisdiction</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Right Side (Tax Summary) -->
+                                    <div class="w-60 flex flex-col">
+                                        <div class="flex border-b border-black">
+                                            <div class="w-32 border-r border-black p-1 text-[10px]" contenteditable="true">Total Amount</div>
+                                            <div class="flex-1 p-1"><input type="number" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs" id="invoiceTotal" value="36000.00"></div>
+                                        </div>
+                                        <div class="flex border-b border-black">
+                                            <div class="w-32 border-r border-black p-1 flex justify-between text-[10px]"><span>CGST</span> <span>%</span> <input type="number" class="w-8 border-none p-0 outline-none text-right bg-transparent text-xs tax-rate" id="cgstRate" value="2.5" step="0.5"></div>
+                                            <div class="flex-1 p-1"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs tax-amt" id="cgstAmt" readonly></div>
+                                        </div>
+                                        <div class="flex border-b border-black">
+                                            <div class="w-32 border-r border-black p-1 flex justify-between text-[10px]"><span>SGST</span> <span>%</span> <input type="number" class="w-8 border-none p-0 outline-none text-right bg-transparent text-xs tax-rate" id="sgstRate" value="2.5" step="0.5"></div>
+                                            <div class="flex-1 p-1"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs tax-amt" id="sgstAmt" readonly></div>
+                                        </div>
+                                        <div class="flex flex-1 border-b border-black">
+                                            <div class="w-32 border-r border-black p-1 flex justify-between text-[10px]"><span>IGST</span> <span>%</span> <input type="number" class="w-8 border-none p-0 outline-none text-right bg-transparent text-xs tax-rate" id="igstRate" value="5" step="0.5"></div>
+                                            <div class="flex-1 p-1"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs tax-amt" id="igstAmt" value="1800.00" readonly></div>
+                                        </div>
+                                        <div class="flex h-12 items-stretch">
+                                            <div class="w-32 border-r border-black p-1 font-bold text-[10px] flex items-center justify-center">Total Value</div>
+                                            <div class="flex-1 p-1 flex items-center justify-center"><input type="text" class="w-full text-center border-none p-0 outline-none font-bold text-sm bg-transparent" id="grandTotalAmt" value="37800.00" readonly></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bottom Row: Rupees & Signature -->
+                                <div class="flex border-t border-black">
+                                    <div class="flex-1 border-r border-black p-1 flex flex-col justify-between h-auto min-h-[90px]">
+                                        <div class="font-bold text-[10px]">Rupees in word</div>
+                                        <div class="mt-2"><input type="text" id="rupeesInWords" class="w-full border-none p-0 outline-none font-bold italic bg-transparent text-xs" value="Thirty Seven Thousand Eight Hundred Only"></div>
+                                    </div>
+                                    <div class="w-60 flex flex-col justify-between p-1 text-[10px] relative text-center min-h-[90px]">
+                                        <div class="font-bold text-right mr-2 mt-1">FOR <span id="printBillingEntitySign">NAINIKA FASHION</span></div>
+                                        <div class="font-bold text-right mr-2 absolute bottom-1 right-1">Authorised By</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <!-- Payment & Actions (Hidden on Print) -->
+                    <div class="no-print bg-white p-6 border border-gray-200 rounded-xl shadow-sm max-w-4xl mx-auto">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800">Payment Status</h3>
+                        <div class="flex flex-wrap gap-6 mb-6">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="paymentStatus" value="Fully Collected" class="w-5 h-5 text-indigo-600" checked>
+                                <span class="font-medium text-gray-700">Fully Collected</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="paymentStatus" value="Half Collected" class="w-5 h-5 text-indigo-600">
+                                <span class="font-medium text-gray-700">Partially Collected</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="paymentStatus" value="Not Collected" class="w-5 h-5 text-indigo-600">
+                                <span class="font-medium text-gray-700">Not Collected</span>
+                            </label>
+                        </div>
+                        
+                        <div id="partialAmountContainer" class="hidden mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Amount Received (₹)</label>
+                            <input type="number" id="amountReceived" class="form-input max-w-xs" placeholder="0.00">
+                        </div>
+
+                        <div class="flex gap-4 border-t border-gray-100 pt-6">
+                            <button id="addRowBtn" class="btn bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex-1 justify-center shadow-md">
+                                <i class="fa-solid fa-plus"></i> Add Row
+                            </button>
+                            <button id="savePrintBtn" class="btn bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex-1 justify-center shadow-md">
+                                <i class="fa-solid fa-print"></i> Print & Save Bill
+                            </button>
+                            <button id="clearBillBtn" class="btn bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300">
+                                <i class="fa-solid fa-eraser"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- HISTORY VIEW                               -->
+            <!-- ========================================== -->
+            <section id="history" class="view-section no-print">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 bg-gray-50 flex flex-col gap-4">
+                        <!-- Top Row: Title & Actions -->
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-bold text-gray-800">Bills History</h2>
+                            <div class="flex items-center gap-3">
+                                <button id="toggleSelectBtn" class="btn bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-200 transition-colors shadow-sm font-medium whitespace-nowrap">
+                                    <i class="fa-solid fa-check-square mr-1"></i> Select
+                                </button>
+                                <button id="bulkDeleteBtn" class="hidden btn bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-sm hover:bg-red-100 transition-colors shadow-sm font-medium whitespace-nowrap">
+                                    <i class="fa-solid fa-trash-can mr-1"></i> Delete Selected
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Bottom Row: Filters & Search -->
+                        <div class="flex flex-wrap justify-between items-center gap-3">
+                            <div class="flex flex-wrap gap-3 items-center">
+                                <!-- Date Filter -->
+                                <select id="historyDateFilter" class="form-input py-2 rounded-lg border-gray-300 text-sm w-36">
+                                    <option value="all">All Dates</option>
+                                    <option value="select">Select Date...</option>
+                                </select>
+                                <input type="date" id="historySpecificDate" class="form-input py-2 rounded-lg border-gray-300 text-sm hidden w-36">
+
+                                <!-- Company Filter -->
+                                <select id="historyCompanyFilter" class="form-input py-2 rounded-lg border-gray-300 text-sm w-44">
+                                    <option value="all">All Companies</option>
+                                    <option value="NAINIKA FASHION">Nainika Fashion</option>
+                                    <option value="IYYAPPA FASHION">Iyyappa Fashion</option>
+                                    <option value="SRI MURUGAN TEX">Sri Murugan Tex</option>
+                                </select>
+                                
+                                <!-- Sort Filter -->
+                                <select id="historySortFilter" class="form-input py-2 rounded-lg border-gray-300 text-sm w-40">
+                                    <option value="date-desc">Sort: Newest First</option>
+                                    <option value="date-asc">Sort: Oldest First</option>
+                                    <option value="amount-desc">Sort: Amount High-Low</option>
+                                    <option value="amount-asc">Sort: Amount Low-High</option>
+                                </select>
+                                <button id="clearHistoryFiltersBtn" class="hidden btn bg-indigo-600 text-white border border-indigo-700 px-3 py-2 rounded-lg text-sm hover:bg-indigo-700 transition-colors shadow-sm font-medium whitespace-nowrap">
+                                    <i class="fa-solid fa-rotate-left mr-1"></i> Back / View All
+                                </button>
+                            </div>
+
+                            <!-- Search -->
+                            <div class="relative">
+                                <input type="text" id="historySearchInput" placeholder="Search bills..." class="form-input pl-10 py-2 rounded-full w-48 lg:w-64 border-gray-300 text-sm">
+                                <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white text-gray-500 uppercase text-xs tracking-wider border-b border-gray-200">
+                                    <th class="py-4 px-4 w-12 text-center multiselect-col hidden">
+                                        <input type="checkbox" id="selectAllHistory" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 cursor-pointer w-4 h-4">
+                                    </th>
+                                    <th class="py-4 px-6 font-medium">Date</th>
+                                    <th class="py-4 px-6 font-medium">Bill No</th>
+                                    <th class="py-4 px-6 font-medium">Client Name</th>
+                                    <th class="py-4 px-6 font-medium">Total Amount</th>
+                                    <th class="py-4 px-6 font-medium">Balance</th>
+                                    <th class="py-4 px-6 font-medium">Status</th>
+                                    <th class="py-4 px-6 font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody" class="divide-y divide-gray-100 text-sm">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- COMPANIES VIEW                             -->
+            <!-- ========================================== -->
+            <section id="companies" class="view-section no-print">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Companies / Clients</h2>
+                    <button id="addCompanyBtn" class="btn bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-sm whitespace-nowrap">
+                        <i class="fa-solid fa-plus"></i> Add New Client
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="companiesGrid">
+                    <!-- Cards will be injected here -->
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- TRASH VIEW                                 -->
+            <!-- ========================================== -->
+            <section id="trash" class="view-section no-print">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-red-50">
+                        <h2 class="text-xl font-bold text-red-800"><i class="fa-solid fa-trash-can mr-2"></i> Trash (Deleted Bills)</h2>
+                        <div class="flex items-center gap-3">
+                            <button id="toggleTrashSelectBtn" class="btn bg-white text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-50 transition-colors shadow-sm font-medium whitespace-nowrap">
+                                <i class="fa-solid fa-check-square mr-1"></i> Select
+                            </button>
+                            <button id="bulkTrashDeleteBtn" class="hidden btn bg-red-600 text-white border border-red-700 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 transition-colors shadow-sm font-medium whitespace-nowrap">
+                                <i class="fa-solid fa-trash-can mr-1"></i> Remove Selected
+                            </button>
+                            <button id="emptyTrashBtn" class="btn bg-red-600 text-white border border-red-700 px-3 py-1.5 rounded-lg text-sm hover:bg-red-700 transition-colors shadow-sm font-medium whitespace-nowrap">
+                                <i class="fa-solid fa-dumpster mr-1"></i> Empty All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white text-gray-500 uppercase text-xs tracking-wider border-b border-gray-200">
+                                    <th class="trash-select-col hidden w-12 py-4 px-6"><input type="checkbox" id="selectAllTrash" class="rounded text-red-600"></th>
+                                    <th class="py-4 px-6 font-medium">Date</th>
+                                    <th class="py-4 px-6 font-medium">Bill No</th>
+                                    <th class="py-4 px-6 font-medium">Client</th>
+                                    <th class="py-4 px-6 font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trashTableBody" class="divide-y divide-gray-100 text-sm">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        
+        <!-- ========================================== -->
+        <!-- MODALS                                     -->
+        <!-- ========================================== -->
+        
+        <!-- Add Client Modal -->
+        <div id="addClientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                    <h3 id="clientModalTitle" class="font-bold text-lg text-gray-800">Client Details</h3>
+                    <button class="closeModal text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Company / Client Name *</label>
+                        <input type="text" id="newClientName" class="form-input w-full" placeholder="E.g., Sri Murugan Tex">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <textarea id="newClientAddress" class="form-input w-full resize-none" rows="2" placeholder="Street, City, Zip"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
+                            <input type="text" id="newClientMobile" class="form-input w-full" placeholder="10-digit number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">State & Code</label>
+                            <input type="text" id="newClientState" class="form-input w-full" placeholder="E.g., Tamil Nadu - 33">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">GSTIN / UIN</label>
+                        <input type="text" id="newClientGST" class="form-input w-full" placeholder="15-character GSTIN" maxlength="15" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)">
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                    <button class="closeModal px-4 py-2 text-gray-600 hover:text-gray-800 font-medium">Cancel</button>
+                    <button id="saveClientBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 shadow-sm font-medium">Save Client</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Select Client Modal -->
+        <div id="selectClientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                    <h3 class="font-bold text-lg text-gray-800">Select Existing Client</h3>
+                    <button class="closeModal text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <div class="p-4 border-b border-gray-100">
+                    <input type="text" id="searchClientInput" class="form-input w-full" placeholder="Search by name or GST...">
+                </div>
+                <div class="flex-1 overflow-y-auto p-2" id="clientListContainer">
+                    <!-- Client list items will be injected here -->
+                    <div class="text-center py-8 text-gray-500 text-sm">Loading clients...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth and Main Scripts -->
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="db.js"></script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>

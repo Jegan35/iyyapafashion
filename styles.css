@@ -1,0 +1,189 @@
+/* styles.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary: #4F46E5; /* Indigo 600 */
+    --primary-hover: #4338CA;
+    --sidebar-bg: #111827; /* Gray 900 */
+    --sidebar-text: #9CA3AF; /* Gray 400 */
+    --sidebar-hover: #F3F4F6;
+    --bg-color: #F9FAFB; /* Gray 50 */
+    --surface: #FFFFFF;
+    --text-main: #1F2937;
+    --border: #E5E7EB;
+}
+
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    overflow-x: hidden;
+}
+
+/* Custom Scrollbar for a premium feel */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+}
+
+/* Non-collapsing Grid & Flex Layouts */
+.layout-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background-color: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.main-content {
+    flex-grow: 1;
+    height: 100%;
+    overflow-y: auto;
+    padding: 2rem;
+    position: relative;
+}
+
+/* View switching classes */
+.view-section {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+.view-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Button aesthetics overrides */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.btn:active {
+    transform: scale(0.97);
+}
+
+/* Form Styles */
+.form-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background-color: var(--surface);
+    transition: all 0.2s ease;
+}
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Cards */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* =========================================
+   PRINT STYLES (CRITICAL FOR INVOICE)
+   ========================================= */
+@media print {
+    @page {
+        margin: 0;
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+        background: white;
+    }
+    
+    /* Hide everything by default in print mode */
+    body * {
+        visibility: hidden;
+    }
+    
+    /* Only show the invoice section and its children */
+    #print-area, #print-area *,
+    #history-print-area, #history-print-area * {
+        visibility: visible;
+    }
+
+    /* When printing from history, hide the main print area */
+    body.history-printing #print-area {
+        display: none !important;
+    }
+
+    #print-area, #history-print-area {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        width: 190mm !important; /* A4 width minus margins */
+        margin: 10mm auto !important;
+        padding: 0;
+        box-shadow: none !important;
+    }
+
+    /* GST Invoice specific print formatting */
+    .print-border {
+        border: 2px solid #000 !important;
+    }
+    .print-border-b {
+        border-bottom: 2px solid #000 !important;
+    }
+    .print-border-r {
+        border-right: 2px solid #000 !important;
+    }
+    .print-text-bold {
+        font-weight: bold !important;
+    }
+    
+    /* Remove padding/margins that mess up print */
+    .main-content {
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+    
+    /* Ensure colors print properly */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color: #000 !important; /* Force black text for crisp printing */
+    }
+
+    /* Hide actionable UI elements inside the print area just in case */
+    .no-print {
+        display: none !important;
+    }
+}
