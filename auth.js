@@ -1,12 +1,12 @@
 // auth.js
 
 export function getCurrentUser() {
-    return localStorage.getItem('currentUserDisplay');
+    return sessionStorage.getItem('currentUserDisplay');
 }
 
 export async function loginUser(username, password) {
     if (username === 'senthil123' && password === '123456') {
-        localStorage.setItem('currentUserDisplay', username);
+        sessionStorage.setItem('currentUserDisplay', username);
         window.location.href = 'app.html';
         return { success: true };
     } else {
@@ -16,7 +16,7 @@ export async function loginUser(username, password) {
 
 export async function logoutUser() {
     try {
-        localStorage.removeItem('currentUserDisplay');
+        sessionStorage.removeItem('currentUserDisplay');
         window.location.href = 'index.html';
         return { success: true };
     } catch (error) {

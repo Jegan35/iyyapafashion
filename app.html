@@ -186,7 +186,7 @@
                         <select id="billingEntity" class="form-input bg-white shadow-sm border-gray-300 rounded-lg max-w-xs font-semibold">
                             <option value="NAINIKA FASHION">NAINIKA FASHION</option>
                             <option value="IYYAPPA FASHION">IYYAPPA FASHION</option>
-                            <option value="SRI MURUGAN TEX">SRI MURUGAN TEX</option>
+                            <option value="PRAVEEN TEX">PRAVEEN TEX</option>
                         </select>
                     </div>
 
@@ -260,7 +260,7 @@
                                         <tr><td class="py-0.5">CELL</td><td><input type="text" id="clientMobile" value="8527684085" class="border-none p-0 outline-none w-full bg-transparent text-xs" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"></td></tr>
                                         <tr><td class="py-0.5">STATE</td><td><input type="text" id="clientState" value="BREZZA" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs"></td></tr>
                                         <tr><td class="py-0.5">state code</td><td><input type="text" id="clientStateCode" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs"></td></tr>
-                                        <tr><td class="py-0.5">GSTIN No</td><td><input type="text" id="clientGST" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs" maxlength="15" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)"></td></tr>
+                                        <tr><td class="py-0.5">GSTIN No</td><td><input type="text" id="clientGST" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs" oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '').toUpperCase()"></td></tr>
                                     </table>
                                 </div>
                                 <!-- Right (Shipped To) -->
@@ -271,7 +271,7 @@
                                         <tr><td class="py-0.5">CELL</td><td><input type="text" id="shipMobile" value="8527684085" class="border-none p-0 outline-none w-full bg-transparent text-xs" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"></td></tr>
                                         <tr><td class="py-0.5">STATE</td><td><input type="text" id="shipState" value="BREZZA" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs"></td></tr>
                                         <tr><td class="py-0.5">state code</td><td><input type="text" id="shipStateCode" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs"></td></tr>
-                                        <tr><td class="py-0.5">GSTIN No</td><td><input type="text" id="shipGST" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs" maxlength="15" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)"></td></tr>
+                                        <tr><td class="py-0.5">GSTIN No</td><td><input type="text" id="shipGST" value="" class="border-none p-0 outline-none w-full uppercase bg-transparent text-xs" oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '').toUpperCase()"></td></tr>
                                     </table>
                                 </div>
                             </div>
@@ -451,7 +451,7 @@
                                     <option value="all">All Companies</option>
                                     <option value="NAINIKA FASHION">Nainika Fashion</option>
                                     <option value="IYYAPPA FASHION">Iyyappa Fashion</option>
-                                    <option value="SRI MURUGAN TEX">Sri Murugan Tex</option>
+                                    <option value="PRAVEEN TEX">Praveen Tex</option>
                                 </select>
                                 
                                 <!-- Sort Filter -->
@@ -503,9 +503,17 @@
             <section id="companies" class="view-section no-print">
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
                     <h2 class="text-xl font-bold text-gray-800">Companies / Clients</h2>
-                    <button id="addCompanyBtn" class="btn bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-sm whitespace-nowrap">
-                        <i class="fa-solid fa-plus"></i> Add New Client
-                    </button>
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="companiesSearchInput" class="form-input pl-10 pr-4 py-2 rounded-lg border-gray-300 w-64 shadow-sm" placeholder="Search clients...">
+                        </div>
+                        <button id="addCompanyBtn" class="btn bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-sm whitespace-nowrap">
+                            <i class="fa-solid fa-plus"></i> Add New Client
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="companiesGrid">
@@ -567,7 +575,7 @@
                 <div class="p-6 space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Company / Client Name *</label>
-                        <input type="text" id="newClientName" class="form-input w-full" placeholder="E.g., Sri Murugan Tex">
+                        <input type="text" id="newClientName" class="form-input w-full" placeholder="E.g., Praveen Tex">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
@@ -579,13 +587,19 @@
                             <input type="text" id="newClientMobile" class="form-input w-full" placeholder="10-digit number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">State & Code</label>
-                            <input type="text" id="newClientState" class="form-input w-full" placeholder="E.g., Tamil Nadu - 33">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                            <input type="text" id="newClientState" class="form-input w-full" placeholder="E.g., Tamil Nadu">
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">GSTIN / UIN</label>
-                        <input type="text" id="newClientGST" class="form-input w-full" placeholder="15-character GSTIN" maxlength="15" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 15)">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">State Code</label>
+                            <input type="text" id="newClientStateCode" class="form-input w-full" placeholder="E.g., 33">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">GSTIN / UIN</label>
+                            <input type="text" id="newClientGST" class="form-input w-full" placeholder="Enter GSTIN" oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '').toUpperCase()">
+                        </div>
                     </div>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">

@@ -64,12 +64,25 @@ function initModals() {
         document.getElementById('newClientAddress').value = '';
         document.getElementById('newClientMobile').value = '';
         document.getElementById('newClientState').value = '';
+        document.getElementById('newClientStateCode').value = '';
         document.getElementById('newClientGST').value = '';
         addClientModal.classList.remove('hidden');
     });
 
     // Make it globally accessible for the edit handler at bottom
     window.setEditingClient = (id) => { currentEditingClientId = id; };
+
+    // Companies Search
+    document.getElementById('companiesSearchInput')?.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        if (!window.allCompaniesData) return;
+        const filtered = window.allCompaniesData.filter(c => 
+            (c.name && c.name.toLowerCase().includes(term)) || 
+            (c.mobile && c.mobile.includes(term)) ||
+            (c.gst && c.gst.toLowerCase().includes(term))
+        );
+        window.renderCompaniesGrid(filtered);
+    });
 
     // Save New Client
     document.getElementById('saveClientBtn').addEventListener('click', async () => {
@@ -84,6 +97,7 @@ function initModals() {
             address: document.getElementById('newClientAddress').value.trim(),
             mobile: document.getElementById('newClientMobile').value.trim(),
             state: document.getElementById('newClientState').value.trim(),
+            stateCode: document.getElementById('newClientStateCode').value.trim(),
             gst: document.getElementById('newClientGST').value.trim()
         };
 
@@ -232,7 +246,7 @@ function initNewBillLogic() {
         if (storeGstInput) {
             if (cName === 'IYYAPPA FASHION') storeGstInput.value = '33CZYPS0122A1ZK';
             else if (cName === 'NAINIKA FASHION') storeGstInput.value = '33BKHPB0870K1ZD';
-            else if (cName === 'SRI MURUGAN TEX') storeGstInput.value = '33BDPPN3944P1ZT';
+            else if (cName === 'PRAVEEN TEX') storeGstInput.value = '33BDPPN3944P1ZT';
         }
     });
     // Trigger on load
@@ -1227,12 +1241,18 @@ async function loadCompanies() {
         return;
     }
 
+    window.allCompaniesData = companies; // Save for editing and searching
+    window.renderCompaniesGrid(companies);
+}
+
+window.renderCompaniesGrid = (companies) => {
+    const grid = document.getElementById('companiesGrid');
     grid.innerHTML = '';
     if (companies.length === 0) {
-        grid.innerHTML = '<div class="text-center w-full py-8 text-gray-500 col-span-full">No clients added yet. Click "Add New Client" to create one.</div>';
+        grid.innerHTML = '<div class="text-center w-full py-8 text-gray-500 col-span-full">No clients found.</div>';
+        return;
     }
 
-    window.allCompaniesData = companies; // Save for editing
     companies.forEach(company => {
         grid.innerHTML += `
             <div class="glass-card p-6 rounded-xl border-l-4 border-l-indigo-500 hover:shadow-md transition-shadow relative group">
@@ -1258,6 +1278,7 @@ window.editClientHandler = (id) => {
     document.getElementById('newClientAddress').value = comp.address || '';
     document.getElementById('newClientMobile').value = comp.mobile || '';
     document.getElementById('newClientState').value = comp.state || '';
+    document.getElementById('newClientStateCode').value = comp.stateCode || '';
     document.getElementById('newClientGST').value = comp.gst || '';
     document.getElementById('addClientModal').classList.remove('hidden');
 };
