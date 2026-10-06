@@ -1,0 +1,16 @@
+{
+  "name": "IYYAPA FASHION",
+  "short_name": "IYYAPA FASHION",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "./logo.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
