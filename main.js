@@ -243,10 +243,24 @@ function initNewBillLogic() {
         if(printEntitySign) printEntitySign.textContent = cName;
         
         const storeGstInput = document.getElementById('storeGst');
+        const printBillingAddress1 = document.getElementById('printBillingAddress1');
+        const printBillingAddress2 = document.getElementById('printBillingAddress2');
+
         if (storeGstInput) {
             if (cName === 'IYYAPPA FASHION') storeGstInput.value = '33CZYPS0122A1ZK';
             else if (cName === 'NAINIKA FASHION') storeGstInput.value = '33BKHPB0870K1ZD';
             else if (cName === 'PRAVEEN TEX') storeGstInput.value = '33BDPPN3944P1ZT';
+            else if (cName === 'G.K.GARMENTS') storeGstInput.value = '33AHAPG5310Q1ZI';
+        }
+
+        if (printBillingAddress1 && printBillingAddress2) {
+            if (cName === 'G.K.GARMENTS') {
+                printBillingAddress1.textContent = '20\\13 APPACHI NAGAR 4TH STREET KONGU MAIN ROAD,';
+                printBillingAddress2.textContent = 'TIRUPUR 641 607 MOBILE-9688704766';
+            } else {
+                printBillingAddress1.textContent = '48\\1 KAMATCHI AMMAN KOVIL STREET, KUMARANANTHAPURAM, P.N ROAD,';
+                printBillingAddress2.textContent = 'TIRUPUR-641602 MOBILE-9688704766';
+            }
         }
     });
     // Trigger on load
