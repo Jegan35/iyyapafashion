@@ -257,6 +257,9 @@ function initNewBillLogic() {
             if (cName === 'G.K.GARMENTS') {
                 printBillingAddress1.textContent = '20\\13 APPACHI NAGAR 4TH STREET KONGU MAIN ROAD,';
                 printBillingAddress2.textContent = 'TIRUPUR 641 607 MOBILE-9688704766';
+            } else if (cName === 'IYYAPPA FASHION') {
+                printBillingAddress1.textContent = '6/1 THIRUMALAI NAGAR 3RD CROSS STREET TIRUPUR 641602';
+                printBillingAddress2.textContent = 'SHANTHI THEATRE BACK SIDE TIRUPUR-641602 MOBILE-8523938588';
             } else {
                 printBillingAddress1.textContent = '48\\1 KAMATCHI AMMAN KOVIL STREET, KUMARANANTHAPURAM, P.N ROAD,';
                 printBillingAddress2.textContent = 'TIRUPUR-641602 MOBILE-9688704766';
@@ -415,9 +418,9 @@ function initNewBillLogic() {
             newRow.className = "flex item-row";
             newRow.innerHTML = `
                 <div class="w-8 text-center pt-2 item-sno">${currentRows + 1}</div>
-                <div class="w-16 text-center pt-2"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs" value=""></div>
+                <div class="w-16 text-center pt-2"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs" value="6109"></div>
                 <div class="flex-1 text-center pt-2"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs uppercase" placeholder="ITEM"></div>
-                <div class="w-10 text-center pt-2"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs" value=""></div>
+                <div class="w-10 text-center pt-2"><input type="text" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs" value="6109"></div>
                 <div class="w-16 text-center pt-2"><input type="number" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs item-qty" value="0"></div>
                 <div class="w-16 text-center pt-2"><input type="number" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs item-rate" value="0.00"></div>
                 <div class="w-28 text-center pt-2"><input type="number" class="w-full text-center border-none p-0 outline-none bg-transparent text-xs item-amount" value="0.00"></div>
