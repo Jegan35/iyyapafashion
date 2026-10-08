@@ -350,28 +350,18 @@ function initNewBillLogic() {
     }
 
     const calculateTaxes = (amount) => {
-        let cgstRateVal = parseFloat(cgstRate?.value) || 0;
-        let sgstRateVal = parseFloat(sgstRate?.value) || 0;
-        let igstRateVal = parseFloat(igstRate?.value) || 0;
+        const cgst = amount * ((parseFloat(cgstRate?.value) || 0) / 100);
+        const sgst = amount * ((parseFloat(sgstRate?.value) || 0) / 100);
+        const igst = amount * ((parseFloat(igstRate?.value) || 0) / 100);
         
-        let cgst = 0;
-        let sgst = 0;
-        let igst = 0;
-
-        if (igstRateVal > 0) {
-            igst = amount * (igstRateVal / 100);
-            if (cgstAmt) cgstAmt.value = "0.00";
-            if (sgstAmt) sgstAmt.value = "0.00";
-            if (igstAmt) igstAmt.value = igst.toFixed(2);
-        } else {
-            cgst = amount * (cgstRateVal / 100);
-            sgst = amount * (sgstRateVal / 100);
-            if (cgstAmt) cgstAmt.value = cgst.toFixed(2);
-            if (sgstAmt) sgstAmt.value = sgst.toFixed(2);
-            if (igstAmt) igstAmt.value = "0.00";
-        }
+        if (cgstAmt) cgstAmt.value = cgst.toFixed(2);
+        if (sgstAmt) sgstAmt.value = sgst.toFixed(2);
+        if (igstAmt) igstAmt.value = igst.toFixed(2);
         
-        const grandTotal = amount + cgst + sgst + igst;
+        // Use Math.max to only add the effective tax amount once
+        const totalTax = Math.max(cgst + sgst, igst);
+        const grandTotal = amount + totalTax;
+        
         if (grandTotalAmt) {
             grandTotalAmt.value = grandTotal.toFixed(2);
             const wordsEl = document.getElementById('rupeesInWords');
