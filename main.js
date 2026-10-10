@@ -247,7 +247,7 @@ function initNewBillLogic() {
         const printBillingAddress2 = document.getElementById('printBillingAddress2');
 
         if (storeGstInput) {
-            if (cName === 'IYYAPPA FASHION') storeGstInput.value = '33CZYPS0122A1ZK';
+            if (cName === 'SRI IYYAPPA FASHION') storeGstInput.value = '33CZYPS0122A1ZK';
             else if (cName === 'NAINIKA FASHION') storeGstInput.value = '33BKHPB0870K1ZD';
             else if (cName === 'PRAVEEN TEX') storeGstInput.value = '33BDPPN3944P1ZT';
             else if (cName === 'G.K.GARMENTS') storeGstInput.value = '33AHAPG5310Q1ZI';
@@ -257,7 +257,7 @@ function initNewBillLogic() {
             if (cName === 'G.K.GARMENTS') {
                 printBillingAddress1.textContent = '20\\13 APPACHI NAGAR 4TH STREET KONGU MAIN ROAD,';
                 printBillingAddress2.textContent = 'TIRUPUR 641 607 MOBILE-9688704766';
-            } else if (cName === 'IYYAPPA FASHION') {
+            } else if (cName === 'SRI IYYAPPA FASHION') {
                 printBillingAddress1.textContent = '6/1 THIRUMALAI NAGAR 3RD CROSS STREET TIRUPUR 641602';
                 printBillingAddress2.textContent = 'SHANTHI THEATRE BACK SIDE TIRUPUR-641602 MOBILE-8523938588';
             } else {
